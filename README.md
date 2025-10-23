@@ -6,6 +6,6 @@ CS 179M Project 1 - Swift Solutions
 - Nichole Godfrey <nichole.godfrey@email.ucr.edu>
 - Maazin Zubair <maazin.zubair@email.ucr.edu>
 
-- Clone Repository
+Clone Repository
 - run "conda install numpy pandas" (installs necessary packages)
 
