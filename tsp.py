@@ -20,6 +20,8 @@ def create_distance_matrix(data):
         for j in range(i, n):
             dist_matrix[i, j] = euclidean_distance(data.iloc[i], data.iloc[j])
 
+    return dist_matrix
+
 def main():
     print('ComputeDronePath\n')
     filename = input('Enter the name of file: ')
