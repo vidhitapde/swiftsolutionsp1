@@ -4,6 +4,7 @@ import math as math
 import random
 import sys
 from pathlib import Path
+import threading
 
 # read in coordinates from file to create dataset
 def extract_coords(filename):
@@ -46,24 +47,33 @@ def random_search(dist):
     print("\n")
     print("Shortest Route Discovered So Far")
 
-    while True:
-        random.shuffle(stops)
-        route = [1] + stops + [1]          
-        cost = route_cost(route, dist)
 
-        if cost < best_cost:
-            best_cost = cost
-            best_route = route[:]
-            print(f"{best_cost:.1f}")
+    stop_flag = threading.Event()
 
-        it += 1
+    def wait_for_enter():
+        try:
+            input()            
+            stop_flag.set()
+        except EOFError:
+            pass
 
-        if sys.platform.startswith('win'):
-            import msvcrt
-            if msvcrt.kbhit():
-                ch = msvcrt.getwch()
-                if ch in ('\r', '\n'):
-                    break
+    threading.Thread(target=wait_for_enter, daemon=True).start()
+
+    try:
+        while not stop_flag.is_set():
+            random.shuffle(stops)
+            route = [1] + stops + [1]
+            cost = route_cost(route, dist)
+
+            if cost < best_cost:
+                best_cost = cost
+                best_route = route[:]
+                print(f"{best_cost:.1f}")
+
+            it += 1
+    except KeyboardInterrupt:
+        print("Stopped with Ctrl+C (forced exit)")
+
 
     return best_cost, best_route
 
