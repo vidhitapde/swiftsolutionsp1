@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 import math as math
+import random
+import sys
+from pathlib import Path
 
 # read in coordinates from file to create dataset
 def extract_coords(filename):
@@ -22,12 +25,60 @@ def create_distance_matrix(data):
 
     return dist_matrix
 
+
+def route_cost(route_1_based, dist):
+    cost = 0.0
+    for k in range(len(route_1_based) - 1):
+        a = route_1_based[k]   - 1  
+        b = route_1_based[k+1] - 1
+        cost += dist[a, b]
+    return cost
+
+def random_search(dist):
+    n = dist.shape[0]
+    stops = list(range(2, n + 1))  
+
+    best_cost = float('inf')
+    best_route = None
+    it = 0
+
+    print(f"There are {n} nodes, computing route...")
+    print("\n")
+    print("Shortest Route Discovered So Far")
+
+    while True:
+        random.shuffle(stops)
+        route = [1] + stops + [1]          
+        cost = route_cost(route, dist)
+
+        if cost < best_cost:
+            best_cost = cost
+            best_route = route[:]
+            print(f"{best_cost:.1f}")
+
+        it += 1
+
+        if sys.platform.startswith('win'):
+            import msvcrt
+            if msvcrt.kbhit():
+                ch = msvcrt.getwch()
+                if ch in ('\r', '\n'):
+                    break
+
+    return best_cost, best_route
+
+
 def main():
     print('ComputeDronePath\n')
     filename = input('Enter the name of file: ')
     data = extract_coords(filename)
 
     distance_matrix = create_distance_matrix(data)
+
+    best_cost, best_route = random_search(distance_matrix)
+    print(f"\nBest found: {best_cost:.1f}")
+    print(f"Route: {best_route}")
+
 
 if __name__ == '__main__':
   main()
