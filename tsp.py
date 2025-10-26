@@ -4,6 +4,7 @@ import math as math
 import random
 import sys
 from pathlib import Path
+import matplotlib.pyplot as plt
 import threading
 
 # read in coordinates from file to create dataset
@@ -77,6 +78,19 @@ def random_search(dist):
 
     return best_cost, best_route
 
+def plot_graph(dist,best_route,data):
+    x = []
+    y = []
+    for loc in best_route:
+        x.append(data.iloc[loc-1, 0])
+        y.append(data.iloc[loc-1, 1])
+
+    plt.plot(x, y, color = 'black', marker = 'o', markersize = 6, markerfacecolor = 'red')
+    plt.xlabel('Latitude')
+    plt.ylabel('Longitude')
+    plt.title('Best So Far Route for TSP')
+    plt.show()
+
 
 def main():
     print('ComputeDronePath\n')
@@ -89,6 +103,7 @@ def main():
     print(f"\nBest found: {best_cost:.1f}")
     print(f"Route: {best_route}")
 
+    plot_graph(distance_matrix,best_route,data)
 
 if __name__ == '__main__':
   main()
