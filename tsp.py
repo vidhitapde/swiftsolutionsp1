@@ -96,9 +96,6 @@ def nearest_neighbor(dist):
         for loc in remaining_locations:
             #euclidian distance for (x1,y1) and (x2,y2) represented by point value in row and col in the dist matrix
             current_distance = dist[current_location-1][loc-1]
-            if(current_distance == 0):
-                current_distance = dist[loc-1][current_location-1] #swap to get distance at point, currently 0.0 as already calculated
-            #check for the nearby location to the current_location
             if(current_distance < best_cost) and current_distance != 0.0:
                 best_cost = current_distance
                 nearby_loc = loc # need to put the path together
