@@ -4,6 +4,7 @@ import math as math
 import random
 import sys
 from pathlib import Path
+import matplotlib.pyplot as plt
 import threading
 
 # read in coordinates from file to create dataset
@@ -35,6 +36,7 @@ def route_cost(route_1_based, dist):
         cost += dist[a, b]
     return cost
 
+  
 def random_search(dist):
     n = dist.shape[0]
     stops = list(range(2, n + 1))  
@@ -76,7 +78,7 @@ def random_search(dist):
 
 
     return best_cost, best_route
-
+  
 
 def nearest_neighbor(dist):
     n = dist.shape[0]
@@ -112,6 +114,20 @@ def nearest_neighbor(dist):
         remaining_locations.remove(remaining_locations[0])
 
     return total_cost, current_optimal_path
+  
+  
+  def plot_graph(dist,best_route,data):
+    x = []
+    y = []
+    for loc in best_route:
+        x.append(data.iloc[loc-1, 0])
+        y.append(data.iloc[loc-1, 1])
+
+    plt.plot(x, y, color = 'black', marker = 'o', markersize = 6, markerfacecolor = 'red')
+    plt.xlabel('Latitude')
+    plt.ylabel('Longitude')
+    plt.title('Best So Far Route for TSP')
+    plt.show()
 
 
 def main():
@@ -124,10 +140,13 @@ def main():
     best_cost, best_route = random_search(distance_matrix)
     print(f"\nBest found: {best_cost:.1f}")
     print(f"Route: {best_route}")
+    
+    plot_graph(distance_matrix,best_route,data)
 
     total_cost, nearest_neighbor_route = nearest_neighbor(distance_matrix)
     print(f"\nNearest Neighbor Cost: {total_cost:.1f}")
     print(f"Nearest Neighbor Route: {nearest_neighbor_route}")
+    
 
 if __name__ == '__main__':
   main()
