@@ -22,7 +22,7 @@ def create_distance_matrix(data):
    
     for i in range(n):
         for j in range(i, n):
-            dist_matrix[i, j] = euclidean_distance(data.iloc[i], data.iloc[j])
+            dist_matrix[i, j] = dist_matrix[j, i] = euclidean_distance(data.iloc[i], data.iloc[j])
 
     return dist_matrix
 
