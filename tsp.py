@@ -199,12 +199,12 @@ def plot_graph(dist,best_route,data):
         x.append(data.iloc[loc-1, 0])
         y.append(data.iloc[loc-1, 1])
 
-    plt.plot(x, y, color = 'black', marker = 'o', markersize = 6, markerfacecolor = 'red')
+    plt.plot(x, y, color = 'black', marker = 'o', markersize = 6, markerfacecolor = 'blue')
+    plt.plot(x[0], y[0], marker = 'o', markersize = 13, markerfacecolor = 'red')
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
-    plt.title('Best So Far Route for TSP')
+    plt.title('Best So Far Route for TSP', fontsize=15)
     plt.show()
-
 
 def main():
     print('ComputeDronePath\n')
