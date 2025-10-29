@@ -20,6 +20,30 @@ def extract_coords(filename):
     
     return data
 
+def unit_square_points(total):
+    random.seed(None)
+
+    points = []
+    edges = ['top', 'bottom', 'left', 'right']
+
+    for i in range(total):
+        location = random.choice(edges)
+
+        if location == 'top':
+            x, y = random.random(), 1.0
+        elif location == 'bottom':
+            x, y = random.random(), 0.0
+        elif location == 'left':
+            x, y = 0.0, random.random()
+        else:
+            x, y = 1.0, random.random()
+
+        points.append([x, y])
+    
+    data = pd.DataFrame(points, columns=[x, y])
+    return data
+
+
 # calculate euclidean distance to be used in creating distance matrix
 def euclidean_distance(point1, point2):
     return math.sqrt((point1.iloc[0] - point2.iloc[0])**2 + (point1.iloc[1] - point2.iloc[1])**2)
@@ -214,13 +238,17 @@ def plot_graph(dist,best_route,data):
     plt.show()
 
 def main():
+    data = unit_square_points(128)
+
     print('ComputeDronePath\n')
-    filename = input('Enter the name of file: ')
-    data = extract_coords(filename)
+
+
+    # filename = input('Enter the name of file: ')
+    # data = extract_coords(filename)
 
     distance_matrix = create_distance_matrix(data)
-    print("Distance Matrix:")
-    print(distance_matrix)
+    # print("Distance Matrix:")
+    # print(distance_matrix)
 
     best_cost, best_route = random_search(distance_matrix)
     print(f"\nBest found: {best_cost:.1f}")
