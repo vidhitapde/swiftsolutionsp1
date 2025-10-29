@@ -4,8 +4,11 @@ import math as math
 import random
 import sys
 from pathlib import Path
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import threading
+import os
 
 # read in coordinates from file to create dataset
 def extract_coords(filename):
@@ -77,8 +80,7 @@ def random_search(dist):
     it = 0
 
     print(f"There are {n} nodes, computing route...")
-    print("\n")
-    print("Shortest Route Discovered So Far")
+    print("     Shortest Route Discovered So Far using Random Search")
 
 
     stop_flag = threading.Event()
@@ -101,7 +103,7 @@ def random_search(dist):
             if cost < best_cost:
                 best_cost = cost
                 best_route = route[:]
-                print(f"{best_cost:.1f}")
+                print(f"          {best_cost:.1f}")
 
             it += 1
     except KeyboardInterrupt:
@@ -121,9 +123,6 @@ def nearest_neighbor(dist):
     total_cost = 0.0
 
     current_location = 1
-    print(f"There are {n} nodes, computing route...")
-    print("\n")
-    print("Shortest Route Discovered with Nearest Neighbor Heuristic")
     while remaining_locations:
         best_cost = float('inf') #current distance will always be less than this, also need to reset for each loc
         for loc in remaining_locations:
@@ -151,11 +150,10 @@ def anytime_nearest_neighbor(dist):
    best_so_far, best_route_so_far = nearest_neighbor(dist)
 
    print(f"There are {n} nodes, computing route...")
-   print("\n")
-   print("Shortest Route Discovered with Nearest Neighbor Heuristic")
+   print("     Shortest Route Discovered So Far using Nearest Neighbor Heuristic")
    it = 0
 
-   print(f"{best_so_far:.1f}")
+   print(f"          {best_so_far:.1f}")
 
    stop_flag = threading.Event()
 
@@ -209,7 +207,7 @@ def anytime_nearest_neighbor(dist):
            if total_cost < best_so_far:
                best_so_far = total_cost
                best_route_so_far = current_optimal_path[:]
-               print(f"{best_so_far:.1f}")
+               print(f"          {best_so_far:.1f}")
            it += 1
 
 
@@ -220,10 +218,7 @@ def anytime_nearest_neighbor(dist):
    return best_so_far, best_route_so_far
 
 
-
-
-  
-def plot_graph(dist,best_route,data):
+def plot_graph(best_route,data,file_name, distance,search):
     x = []
     y = []
     for loc in best_route:
@@ -234,38 +229,52 @@ def plot_graph(dist,best_route,data):
     plt.plot(x[0], y[0], marker = 'o', markersize = 13, markerfacecolor = 'red')
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
-    plt.title('Best So Far Route for TSP', fontsize=15)
-    plt.show()
+    plt.title(f'Best So Far Route for TSP using {search}', fontsize=15)
+    plt.savefig(f"{file_name}_solution_{distance}")
+    plt.close()
+
+    
 
 def main():
     data = unit_square_points(128)
 
-    print('ComputeDronePath\n')
+    print('\nComputeDronePath')
 
 
-    # filename = input('Enter the name of file: ')
-    # data = extract_coords(filename)
+    input_file = input('Enter the name of file: ')
+    file_name_w_ext = os.path.basename(input_file)
+    file_name,ext = os.path.splitext(file_name_w_ext)
+    
+    data = extract_coords(input_file)
 
     distance_matrix = create_distance_matrix(data)
-    # print("Distance Matrix:")
-    # print(distance_matrix)
+
 
     best_cost, best_route = random_search(distance_matrix)
-    print(f"\nBest found: {best_cost:.1f}")
-    print(f"Route: {best_route}")
-    
-    plot_graph(distance_matrix,best_route,data)
-
-
-    # total_cost, nearest_neighbor_route = nearest_neighbor(distance_matrix)
-    # print(f"\nNearest Neighbor Cost: {total_cost:.1f}")
-    # print(f"Nearest Neighbor Route: {nearest_neighbor_route}")
-    # plot_graph(distance_matrix,nearest_neighbor_route,data)
+    distance = int(best_cost)
+    print(f"D, A total distance for the route: {distance}")
+    if distance > 6000: 
+        print(f"Warning: Solution is {distance}, greater than the 6000-meter constraint." + "\n")
+    print(f"Route written to disk as {file_name}_solution_{distance}.txt" + "\n" + "\n")
+    with open(f"{file_name}_solution_{distance}.txt","w") as f:
+        for i,point in enumerate(best_route):
+            f.write(f"{point}")
+            if i < len(best_route) - 1:
+                f.write("\n")
+    plot_graph(best_route,data,file_name,distance,"Random Search")
 
     total_cost, nearest_neighbor_route = anytime_nearest_neighbor(distance_matrix)
-    print(f"\nAnytime Nearest Neighbor Cost: {total_cost:.1f}")
-    print(f"Anytime Nearest Neighbor Route: {nearest_neighbor_route}")
-    plot_graph(distance_matrix,nearest_neighbor_route,data)
+    distance = int(total_cost)
+    print(f"D, A total distance for the route: {distance}")
+    if distance > 6000: 
+        print(f"\nWarning: Solution is {distance}, greater than the 6000-meter constraint." + "\n" )
+    print(f"Route written to disk as {file_name}_solution_{distance}.txt"  + "\n" + "\n")
+    with open(f"{file_name}_solution_{distance}.txt","w") as f:
+        for i,point in enumerate(nearest_neighbor_route):
+            f.write(f"{point}")
+            if i < len(nearest_neighbor_route) - 1:
+                f.write("\n")
+    plot_graph(nearest_neighbor_route,data,file_name,distance,"Anytime NN Search")
 
 if __name__ == '__main__':
   main()
