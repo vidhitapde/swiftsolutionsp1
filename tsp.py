@@ -11,6 +11,13 @@ import threading
 def extract_coords(filename):
     data_names = ['x', 'y']     # label columns
     data = pd.read_csv(filename, sep='\s+', names=data_names)
+
+    if not all (data.dtypes == 'float64'):
+        raise Exception("Locations are not in float64 format.")
+
+    if len(data) > 256:
+        raise Exception("Error: Locations exceeds 256.")
+    
     return data
 
 # calculate euclidean distance to be used in creating distance matrix
