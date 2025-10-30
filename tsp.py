@@ -13,7 +13,7 @@ import os
 # read in coordinates from file to create dataset
 def extract_coords(filename):
     data_names = ['x', 'y']     # label columns
-    data = pd.read_csv(filename, sep='\s+', names=data_names)
+    data = pd.read_csv(filename, sep=r'\s+', names=data_names)
 
     if not all (data.dtypes == 'float64'):
         raise Exception("Locations are not in float64 format.")
