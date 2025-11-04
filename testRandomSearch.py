@@ -17,7 +17,7 @@ def unit_square_points(total_points, instances):
 
 
     for i in range(instances):
-        points = {(0.0,0.0), (1.0,0.0), (0.0,1.0), (1.0,1.0)}
+        points = [(0.0,0.0), (1.0,0.0), (0.0,1.0), (1.0,1.0)]
         while len(points) < total_points:
             location = random.choice(edges)
 
@@ -30,7 +30,8 @@ def unit_square_points(total_points, instances):
             else:
                 x, y = 1.0, random.random()
 
-            points.add((round(x,7), round(y,7)))
+            if (x,y) not in points:
+                points.append((round(x,7), round(y,7)))
 
         data = pd.DataFrame(points, columns=['x', 'y'])
         data.to_csv(f'Unit-square-instances/instance{total_points}',float_format='%.7e', sep=' ', index=False, header=None)
