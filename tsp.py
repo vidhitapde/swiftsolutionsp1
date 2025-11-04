@@ -230,6 +230,7 @@ def plot_graph(best_route,data,file_name, distance,search):
     plt.xlabel('Latitude')
     plt.ylabel('Longitude')
     plt.title(f'Best So Far Route for TSP using {search}', fontsize=15)
+    plt.axis('equal')
     plt.savefig(f"{file_name}_solution_{distance}")
     plt.close()
 
@@ -242,6 +243,9 @@ def main():
 
 
     input_file = input('Enter the name of file: ')
+    if not( os.path.exists(input_file)):
+        raise Exception("Warning: file does not exist, ending program.")
+        
     file_name_w_ext = os.path.basename(input_file)
     file_name,ext = os.path.splitext(file_name_w_ext)
     
