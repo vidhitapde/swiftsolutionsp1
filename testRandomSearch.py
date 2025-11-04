@@ -9,7 +9,7 @@ import os
 from tsp import extract_coords, nearest_neighbor, route_cost, create_distance_matrix
 
 def unit_square_points(total_points, instances):
-    os.makedirs('100-unit-square-instances', exist_ok=True)  
+    os.makedirs('Unit-square-instances', exist_ok=True)  
 
     random.seed(None)
 
@@ -34,11 +34,86 @@ def unit_square_points(total_points, instances):
                 points.append((round(x,7), round(y,7)))
 
         data = pd.DataFrame(points, columns=['x', 'y'])
-        data.to_csv(f'100-unit-square-instances/instance{i}',float_format='%.7e', sep=' ', index=False, header=None)
+        data.to_csv(f'Unit-square-instances/instance{total_points}',float_format='%.7e', sep=' ', index=False, header=None)
 
     return data
 
 
+def plot_graph():
+    trial_time = 5  
+    foldername = 'Unit-square-instances'
+    results_by_nodes = {}
+
+    for entry in os.scandir(foldername):
+        print(f"Running on: {entry.name}")
+        data = extract_coords(os.path.join(foldername, entry.name))
+        dist = create_distance_matrix(data)
+        
+        num_nodes = dist.shape[0]
+        
+        if num_nodes not in results_by_nodes:
+            results_by_nodes[num_nodes] = {'random': [], 'nn': []}
+
+        random_runs = []
+        nn_runs = []
+
+        for run in range(1): 
+            random_cost = random_search_timed(dist, trial_time)
+            nn_cost = anytime_nearest_neighbor_timed(dist, trial_time)
+            random_runs.append(random_cost)
+            nn_runs.append(nn_cost)
+
+        avg_random = sum(random_runs) / len(random_runs)
+        avg_nn = sum(nn_runs) / len(nn_runs)
+        
+        results_by_nodes[num_nodes]['random'].append(avg_random)
+        results_by_nodes[num_nodes]['nn'].append(avg_nn)
+
+    node_counts = sorted(results_by_nodes.keys())
+    avg_random_costs = []
+    avg_nn_costs = []
+    
+    for nodes in node_counts:
+        avg_random = sum(results_by_nodes[nodes]['random']) / len(results_by_nodes[nodes]['random'])
+        avg_nn = sum(results_by_nodes[nodes]['nn']) / len(results_by_nodes[nodes]['nn'])
+        avg_random= (avg_random/4.0)*100.0
+        avg_nn= (avg_nn/4.0)*100.0
+        avg_random_costs.append(avg_random)
+        avg_nn_costs.append(avg_nn)
+
+    print("Node Counts:", node_counts)
+    print("Average Random Search Costs:", avg_random_costs)
+    print("Average Nearest Neighbor Costs:", avg_nn_costs)
+    plt.scatter(node_counts, avg_nn_costs, color='blue', s=150, label='Algorithm A: Random')
+    plt.scatter(node_counts, avg_random_costs, color='red', s=150, label='Algorithm B: Nearest Neighbor')
+    plt.xscale('log', base=2)
+    plt.xlim(20, 1100)
+    plt.yticks(range(100, 17500, 2400))
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Average Cost % of Optimal')
+    plt.legend()
+    plt.title('Algorithm Comparison with 5 Second Time Budget')
+    plt.axis('equal')
+    plt.savefig('algorithm_comparison_5.png')
+
+
+def generate_test_files():
+    random.seed(None)
+
+    #comment out error handlling in extract_coords func if size>256
+    sizes = [512,1024]
+
+    for size in sizes:
+        points = set()
+        while len(points) < size:
+            x = round(random.uniform(0, 100), 7)
+            y = round(random.uniform(0, 100), 7)
+            points.add((x, y))
+
+        data = pd.DataFrame(points, columns=['x', 'y'])
+        data.to_csv(f'TSP_test_cases/instance_{size}_nodes.txt', float_format='%.7e', sep=' ', index=False, header=None)
+
+    
 def random_search_test(dist, time_limit, trials):
     total_distances = []
     total_times = []
@@ -196,6 +271,7 @@ def unit_square_test(trial_time, foldername):
         random_cost = random_search_timed(dist, trial_time)
         random_costs.append(random_cost)
         nn_cost = anytime_nearest_neighbor_timed(dist, trial_time)
+        print(nn_cost)
         nn_costs.append(nn_cost)
     
     avg_random = sum(random_costs)/len(random_costs)
@@ -204,9 +280,8 @@ def unit_square_test(trial_time, foldername):
     print(f'Time: {trial_time} \n Random Search: {avg_random} \n Nearest Neighbor: {avg_nn}')
 
 def main():
-    # data = unit_square_points(128, 100)
-
-    unit_square_test(0.25, '100-unit-square-instances')
+    #data = unit_square_points(1024, 1)
+    plot_graph()
 
     # print('ComputeDronePath\n')
 
