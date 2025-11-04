@@ -203,9 +203,27 @@ def unit_square_test(trial_time, foldername):
 
     print(f'Time: {trial_time} \n Random Search: {avg_random} \n Nearest Neighbor: {avg_nn}')
 
+
+def timed_tests(trial_time,trial_nums): #figure 5
+    nn_costs = []
+
+    input_file = input('Enter the name of file: ')
+    data = extract_coords(input_file)
+    dist = create_distance_matrix(data)
+
+    for trial in range(trial_nums):
+        nn_cost = anytime_nearest_neighbor_timed(dist, trial_time)
+        nn_costs.append(nn_cost)
+    
+    avg_nn = sum(nn_costs)/len(nn_costs)
+
+    print(f"NN costs over {trial_nums} trials: {nn_costs}")
+    print(f'Time: {trial_time} \n Nearest Neighbor: {avg_nn:.1f}')
+
 def main():
     # data = unit_square_points(128, 100)
 
+    # timed_tests(100,5)
     unit_square_test(0.25, '100-unit-square-instances')
 
     # print('ComputeDronePath\n')
